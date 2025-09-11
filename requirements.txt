@@ -1,5 +1,6 @@
 Flask==2.2.5
 pytesseract==0.3.10
-Pillow==9.5.0
-pdfplumber==0.10.0
+Pillow==9.4.0
+pdfplumber==0.10.1
 python-docx==0.8.11
+gunicorn==20.1.0
