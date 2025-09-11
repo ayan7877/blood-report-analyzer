@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Blood Report Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+        }
+
+        textarea {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #3498db;
+        }
+
+        #recommended-tests,
+        #analysis-result {
+            margin-top: 20px;
+        }
+
+        .normal {
+            color: green;
+            font-weight: bold;
+        }
+
+        .abnormal {
+            color: red;
+            font-weight: bold;
+        }
+
+        .result-box {
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+        }
+
+        .result-box.abnormal {
+            border-left: 5px solid #e74c3c;
+            background: #fdecea;
+        }
+
+        .result-box.normal {
+            border-left: 5px solid #27ae60;
+            background: #eafaf1;
+        }
+
+        .section {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        ul {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        ul li {
+            padding: 5px 0;
+        }
+
+        #doctor-recommendation {
+            background-color: #fcf8e3;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Blood Report Analyzer</h1>
+
+    <div class="section">
+        <!-- Symptoms Input Section -->
+        <h2>Enter Your Symptoms</h2>
+        <textarea id="symptoms" rows="5" placeholder="Describe your symptoms here..."></textarea><br>
+        <button id="get-tests">Get Recommended Blood Tests</button>
+
+        <div id="recommended-tests"></div>
+
+        <hr>
+
+        <!-- Report Upload Section -->
+        <h2>Upload Blood Report</h2>
+        <form id="upload-form">
+            <input type="file" name="report-file" required>
+            <button type="submit">Analyze Report</button>
+        </form>
+
+        <div id="analysis-result"></div>
+    </div>
+
+    <script>
+        document.getElementById('get-tests').addEventListener('click', async function () {
+            const symptoms = document.getElementById('symptoms').value;
+            const res = await fetch('/recommend-tests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ symptoms })
+            });
+
+            const data = await res.json();
+            const testsDiv = document.getElementById('recommended-tests');
+
+            if (data.recommended_tests.length === 0) {
+                testsDiv.innerHTML = '<p class="normal">No specific blood tests recommended for the given symptoms.</p>';
+            } else {
+                testsDiv.innerHTML = '<h3>Recommended Blood Tests:</h3><ul>' +
+                    data.recommended_tests.map(test => `<li>${test}</li>`).join('') +
+                    '</ul>';
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('report-file', document.querySelector('input[name="report-file"]').files[0]);
+
+            const res = await fetch('/upload-report', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+            const resultDiv = document.getElementById('analysis-result');
+            resultDiv.innerHTML = '<h3>Analysis Result:</h3>';
+
+            if (!data.analysis || data.analysis.length === 0) {
+                resultDiv.innerHTML += '<p class="normal">No parameters found in the report.</p>';
+                return;
+            }
+
+            data.analysis.forEach(item => {
+                const statusClass = item.status === 'Abnormal' ? 'abnormal' : 'normal';
+                resultDiv.innerHTML += `
+                    <div class="result-box ${statusClass}">
+                        <p><strong>${item.parameter.toUpperCase()}:</strong> ${item.value} ${item.unit}</p>
+                        <p class="${statusClass}">${item.explanation}</p>
+                    </div>
+                `;
+            });
+
+            resultDiv.innerHTML += `<div id="doctor-recommendation"><h3>Doctor Recommendation:</h3><p>${data.doctor_recommendation}</p></div>`;
+        });
+    </script>
+</body>
+
+</html>
