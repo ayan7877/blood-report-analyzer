@@ -106,6 +106,8 @@
 </head>
 
 <body>
+    <p>Welcome, {{ username }} | <a href="/logout">Logout</a></p>
+
     <h1>Blood Report Analyzer</h1>
 
     <div class="section">
@@ -129,6 +131,7 @@
     </div>
 
     <script>
+        // Fetch recommended tests
         document.getElementById('get-tests').addEventListener('click', async function () {
             const symptoms = document.getElementById('symptoms').value;
             const res = await fetch('/recommend-tests', {
@@ -149,10 +152,15 @@
             }
         });
 
+        // Upload report and include symptoms
         document.getElementById('upload-form').addEventListener('submit', async function (e) {
             e.preventDefault();
             const formData = new FormData();
             formData.append('report-file', document.querySelector('input[name="report-file"]').files[0]);
+
+            // Copy symptoms from textarea
+            const symptoms = document.getElementById('symptoms').value;
+            formData.append('symptoms', symptoms);
 
             const res = await fetch('/upload-report', {
                 method: 'POST',

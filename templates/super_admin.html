@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Super Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        a {
+            text-decoration: none;
+            color: #2980b9;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .top-bar {
+            margin-bottom: 20px;
+        }
+
+        .danger {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <a href="{{ url_for('admin_panel') }}">← Back to Admin Panel</a> |
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <h1>Super Admin Panel (Restricted)</h1>
+
+    <h2>All Admin Accounts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Password (Hashed)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for adm in admins %}
+            <tr>
+                <td>{{ adm.id }}</td>
+                <td>{{ adm.email }}</td>
+                <td>{{ adm.password }}</td>
+                <td>
+                    {% if adm.email != "admin@example.com" %}
+                    <form action="{{ url_for('delete_admin', admin_id=adm.id) }}" method="POST"
+                        onsubmit="return confirm('Delete this admin?');" style="display:inline-block;">
+                        <button type="submit" class="danger">Delete</button>
+                    </form>
+                    {% else %}
+                    <em>Protected</em>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Users Overview</h2>
+    <p>Total Users: {{ users|length }}</p>
+
+    <h2>Reports Overview</h2>
+    <p>Total Reports: {{ reports|length }}</p>
+</body>
+
+</html>
