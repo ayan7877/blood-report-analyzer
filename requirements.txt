@@ -4,13 +4,10 @@ Flask-Login==0.6.3
 Flask-SQLAlchemy==3.1.1
 SQLAlchemy==2.0.31
 flask-cors==4.0.1
-Pillow==10.4.0
-
+Pillow==9.5.0          # pre-built wheel exists
 pytesseract==0.3.10
 pdf2image==1.17.0
 PyPDF2==3.0.1
 opencv-python==4.10.0.84
-numpy==1.26.4
-pandas==2.2.2
-matplotlib==3.9.1
-gunicorn==23.0.0
+numpy==1.24.4          # pre-built wheel, faster than 1.26
+pandas==2.0.3          # pre-built wheel, faster than 2.2.2
